@@ -1,4 +1,6 @@
 {
   "name1": "value1",
-  "name2": "value2"
+  "name2": "value2",
+  "redis-server": "localhost",
+  "redis-port": "6379"
 }

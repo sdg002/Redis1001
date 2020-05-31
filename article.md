@@ -45,8 +45,61 @@ to be done
 # Using Redis for local development
 to be done
 
-## Installing Redis locally
-## C# client application  - Programming with full Redis API
+## Installing Redis locally on Windows
+- Where to install Windows binaries?
+Redis server sets up a TCP/IP server.
+The Redis server can be run as follows
+- Open a CMD prompt
+- Navigate to the folder where the redis-server.exe was extracted
+- You should see a file redis.conf in this folder
+- The port number is specified in this (Usually 6379)
+- Launch redis server with the following command
+
+```
+c:\redis-server
+```
+The log messages on the console will help affirming the actual port number
+
+```
+[36388] 31 May 22:07:17 * The server is now ready to accept connections on port 6379
+```
+
+## Redis command line client
+### How to launch?
+
+```
+redis-cli.exe -h localhost -p 6379
+```
+
+### List all keys
+```
+ redis localhost:6379> keys * 
+
+39) "foo:rand:000000000016"
+40) "foo:rand:000000000017"
+41) "foo:rand:000000000018"
+42) "foo:rand:000000000019"
+43) "mykey-f9d21bca-48f6-4cf8-b68d-1652b9533633"
+44) "mykey-43d5b08a-5b60-4c72-8820-dcb6f6372b4b"
+```
+
+### Delete a specific key
+
+```
+redis localhost:6379> del mykey-0001 
+```
+### Delete all keys
+
+```
+redis localhost:6379> flushall
+```
+
+## C# client application  - Programming with StackExchange general purpose client
+
+```
+Install-Package StackExchange.Redis
+```
+
 ## C# client application  - Programming with IDistributedCache
 
 ## Dependency injection
