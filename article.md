@@ -110,6 +110,10 @@ Install-Package StackExchange.Redis
 # Getting started with Redis on Azure
 ## Creating a Redis cache using the Portal
 ## Creating a Redis cache using PowerShell
+
+### Redis ARM templates on Github 
+https://github.com/Azure/azure-quickstart-templates/tree/master/101-redis-cache
+
 ## Connection string
 
 # Benchmarking Redis performance
@@ -145,3 +149,18 @@ https://marketplace.visualstudio.com/items?itemName=gbnz.redis-cache-clear&targe
 https://github.com/MicrosoftArchive/redis/
 Look for the Releases section
 
+# Notes to myself
+- Running redis-cli or redis-benchmark on Windows AppService was not possible
+- Make sure to have the latest Redis tools from Microsoft site https://github.com/microsoftarchive/redis
+- My tests were done using the Release 3.2.100
+- You will need to create a VM in the same region as the Redis instance
+- Remember that the client tools do not support TLS security. You will have to disable TLS security from Redis configuration
+- Good article from Microsoft. https://docs.microsoft.com/en-us/azure/azure-cache-for-redis/cache-how-to-redis-cli-tool
+
+## Command line
+redis-cli.exe -h saudemo001-dev.redis.cache.windows.net -p 6379 -a "nXz4LEnKPzlYZsIJpmThr29Yzg6J5L6pfih+q4XlDSg="
+redis-benchmark.exe -h saudemo001-dev.redis.cache.windows.net -p 6379 -a "nXz4LEnKPzlYZsIJpmThr29Yzg6J5L6pfih+q4XlDSg=" -d 2000 -c 5 -n 5000
+
+## Challenges with Redis ARM deployment
+https://github.com/Azure/azure-quickstart-templates/issues/7608
+https://github.com/Azure/azure-quickstart-templates/issues/7609
