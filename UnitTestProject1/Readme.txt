@@ -10,8 +10,6 @@ What does a Redis connection string look like?
 
 What was I doing?
 -----------------
-	Configure the connection string in the settings.json
-	Run the local Redis
-	Write the code for getting/setting
-	How to run in-memory cache for local development?
+	Add to "How to run in-memory cache for local development?"
+	Test ARM template with modified storage account identifier line
 
