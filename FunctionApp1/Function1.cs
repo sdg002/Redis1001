@@ -53,9 +53,10 @@ namespace FunctionApp1
                 for (int i = 0; i < countOfItems; i++)
                 {
                     var c = new Customer($"email-{i}", $"firstname-{i}", $"lastname-{i}");
-                    //string json=Newtonsoft.Json.jsonconn
+                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(c);
+                    await _cacheTxnServerInstance.SetStringAsync($"customer-{i}", json);
                 }
-                return new OkObjectResult($"Count of items added to cache={countOfItems}");
+                return new OkObjectResult($"Count of items added to cache={countOfItems}. Structur of key= 'customer-{{index}}'");
             }
             catch (Exception ex)
             {
