@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "FunctionApp1": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "REDISDEMO_REDISSERVER": "localhost",
+        "REDISDEMO_REDISPORT": "6379"
+      }
+    }
+  }
+}
