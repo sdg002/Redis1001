@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using REDIS = StackExchange.Redis;
 using System;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 
 [assembly: FunctionsStartup(typeof(FunctionApp1.Startup))]
 
@@ -17,25 +18,33 @@ namespace FunctionApp1
             IConfiguration config = configurationBuilder.Build();
             builder.Services.AddSingleton<IConfiguration>(config);
 
-            var redisConfig = new RedisConfig();
-            config.Bind(redisConfig);
-            builder.Services.AddSingleton<RedisConfig>(redisConfig);
-            builder.Services.AddSingleton<RedisConfig>(provider => new RedisConfig
+            builder.Services.Configure<RedisConfiguration>(config, redisconfig =>
             {
-                Server = provider.GetRequiredService<IConfiguration>()["REDISDEMO_REDISSERVER"],
-                Port = provider.GetRequiredService<IConfiguration>()["REDISDEMO_REDISPORT"]
+                var redisConfig = new RedisConfiguration();
+                redisConfig.ConnectionStringAdmin = config["REDISDEMO_CNSTRING_ADMIN"];
+                redisConfig.ConnectionStringTxn = config["REDISDEMO_CNSTRING_TRANSACTIONS"];
             });
-            builder.Services.AddSingleton<REDIS.IServer>(this.CreateRedisServer);
+            builder.Services.AddSingleton<RedisConfiguration>(provider => new RedisConfiguration
+            {
+                ConnectionStringAdmin = provider.GetRequiredService<IConfiguration>()["REDISDEMO_CNSTRING_ADMIN"],
+                ConnectionStringTxn = provider.GetRequiredService<IConfiguration>()["REDISDEMO_CNSTRING_TRANSACTIONS"]
+            });
+            builder.Services.AddSingleton<REDIS.IServer>(this.CreateRedisServerForManagement);
+
+            builder.Services.AddStackExchangeRedisCache(opt =>
+            {
+                var redisConfig = builder.Services.BuildServiceProvider().GetService<RedisConfiguration>();
+                opt.Configuration = redisConfig.ConnectionStringTxn;
+            });
         }
 
-        private REDIS.IServer CreateRedisServer(IServiceProvider provider)
+        private REDIS.IServer CreateRedisServerForManagement(IServiceProvider provider)
         {
-            var redisConfig = provider.GetService<RedisConfig>();
-            var cnstringAdmin = $"{redisConfig.Server}:{redisConfig.Port},allowAdmin=true";
-            var cnstring = $"{redisConfig.Server}:{redisConfig.Port}";
+            var redisConfig = provider.GetService<RedisConfiguration>();
+            var cnstringAdmin = redisConfig.ConnectionStringAdmin;
             //You need allowAdmin=true to call methods .FlushDatabase and .Keys()
             var redis = REDIS.ConnectionMultiplexer.Connect(cnstringAdmin);
-            return redis.GetServer(cnstring);
+            return redis.GetServer(redisConfig.ConnectionStringTxn);
         }
     }
 }

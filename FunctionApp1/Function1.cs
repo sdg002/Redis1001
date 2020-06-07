@@ -1,15 +1,15 @@
 using System;
-using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using Microsoft.Extensions.Configuration;
 using REDIS = StackExchange.Redis;
 using System.Linq;
+using System.Net;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace FunctionApp1
 {
@@ -17,15 +17,22 @@ namespace FunctionApp1
     {
         private readonly IConfiguration _config;
         private readonly ILogger<Function1> _logger;
-        private readonly RedisConfig _redisConfig;
+        private readonly RedisConfiguration _redisConfig;
         private readonly REDIS.IServer _redisAdminServerInstance;
+        private readonly IDistributedCache _cacheTxnServerInstance;
 
-        public Function1(IConfiguration config, ILogger<Function1> logger, RedisConfig redisConfig, REDIS.IServer redisServer)
+        public Function1(
+            IConfiguration config,
+            ILogger<Function1> logger,
+            RedisConfiguration redisConfig,
+            REDIS.IServer redisServer,
+            IDistributedCache cacheTxnServerInstance)
         {
             _config = config;
             _logger = logger;
             _redisConfig = redisConfig;
             _redisAdminServerInstance = redisServer;
+            _cacheTxnServerInstance = cacheTxnServerInstance;
         }
 
         [FunctionName("BulkAddCustomers")]
@@ -35,15 +42,26 @@ namespace FunctionApp1
         {
             _logger.LogInformation("C# HTTP trigger function BulkAddCustomers");
 
-            string name = req.Query["name"];
+            const int MAXITEMS = 10000;
 
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            try
+            {
+                string count = req.Query["count"];
 
-            return name != null
-                ? (ActionResult)new OkObjectResult($"Hello, {name}")
-                : new BadRequestObjectResult("Please pass a name on the query string or in the request body");
+                int countOfItems = (count == null) ? MAXITEMS : int.Parse(count);
+
+                for (int i = 0; i < countOfItems; i++)
+                {
+                    var c = new Customer($"email-{i}", $"firstname-{i}", $"lastname-{i}");
+                    //string json=Newtonsoft.Json.jsonconn
+                }
+                return new OkObjectResult($"Count of items added to cache={countOfItems}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error while attempting to invoke BulkAddCustomers", ex);
+                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [FunctionName("GetCachedItemCount")]
@@ -52,10 +70,18 @@ namespace FunctionApp1
             )
         {
             _logger.LogInformation($"C# HTTP trigger function {nameof(GetCachedItemCount)}");
-            var allKeys = _redisAdminServerInstance.Keys(pattern: "*");
+            try
+            {
+                var allKeys = _redisAdminServerInstance.Keys(pattern: "*");
 
-            int count = allKeys.Count();
-            return new OkObjectResult($"Count of items in cache={count}");
+                int count = allKeys.Count();
+                return new OkObjectResult($"Count of items in cache={count}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error while attempting to invoke GetCachedItemCount", ex);
+                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+            }
         }
 
         [FunctionName("FlushCache")]
@@ -64,9 +90,16 @@ namespace FunctionApp1
             )
         {
             _logger.LogInformation($"C# HTTP trigger function {nameof(FlushCache)}");
-
-            await _redisAdminServerInstance.FlushDatabaseAsync();
-            return new OkObjectResult($"Redis database was flushed at {DateTime.UtcNow}");
+            try
+            {
+                await _redisAdminServerInstance.FlushDatabaseAsync();
+                return new OkObjectResult($"Redis database was flushed at {DateTime.UtcNow}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error while attempting to FlushCache", ex);
+                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+            }
         }
     }
 }
