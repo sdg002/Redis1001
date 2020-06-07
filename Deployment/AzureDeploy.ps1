@@ -18,5 +18,13 @@ $oStorageAccount=Get-AzResource -ResourceGroupName $resourcegroupname -Name $sto
 
 
 New-AzResourceGroupDeployment -ResourceGroupName $resourcegroupname -TemplateFile $scriptfolder\arm-redis\template.json -TemplateParameterFile $scriptfolder\arm-redis\parameters.json -redisCacheName $rediscache -redisCacheSKU "Basic" -existingDiagnosticsStorageAccountId $oStorageAccount.ResourceId  -Verbose
+#
+#Get connection parameters for the newly created Redis instance
+#
+$config=Get-AzRedisCache -name $rediscache
+$keys=Get-AzRedisCacheKey -Name $rediscache
+"Host name {0}" -f $config.hostname
+"Port number {0}" -f $config.port
+"Key {0}" -f $keys.PrimaryKey
 
 
