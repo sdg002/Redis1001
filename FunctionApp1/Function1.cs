@@ -51,11 +51,22 @@ namespace FunctionApp1
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "getcacheditemcount")] HttpRequest req
             )
         {
-            _logger.LogInformation("C# HTTP trigger function GetCachedItemCount");
+            _logger.LogInformation($"C# HTTP trigger function {nameof(GetCachedItemCount)}");
             var allKeys = _redisAdminServerInstance.Keys(pattern: "*");
 
             int count = allKeys.Count();
             return new OkObjectResult($"Count of items in cache={count}");
+        }
+
+        [FunctionName("FlushCache")]
+        public async Task<IActionResult> FlushCache(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "flushcache")] HttpRequest req
+            )
+        {
+            _logger.LogInformation($"C# HTTP trigger function {nameof(FlushCache)}");
+
+            await _redisAdminServerInstance.FlushDatabaseAsync();
+            return new OkObjectResult($"Redis database was flushed at {DateTime.UtcNow}");
         }
     }
 }
