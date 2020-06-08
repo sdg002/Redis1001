@@ -19,4 +19,9 @@ What was I doing?
 		Populate Cache (10000)
 		Flush Cache
 		Get item with specific key
-	Deploy to Azure
+
+	Deploy to Azure manually
+		configure appinsights
+		configure environment variables
+	Automate deployment to Azure
+		Create service plan ARM		

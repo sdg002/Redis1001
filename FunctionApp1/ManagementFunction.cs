@@ -72,5 +72,26 @@ namespace FunctionApp1
                 return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
             }
         }
+
+        [FunctionName("Ping")]
+        public IActionResult Ping(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ping")] HttpRequest req
+            )
+        {
+            _logger.LogInformation($"C# HTTP trigger function {nameof(Ping)}");
+            try
+            {
+                var time = DateTime.UtcNow;
+
+                var oResult = new ObjectResult(time);
+                oResult.StatusCode = (int)HttpStatusCode.OK;
+                return oResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error while attempting to invoke GetCachedItemCount", ex);
+                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+            }
+        }
     }
 }
