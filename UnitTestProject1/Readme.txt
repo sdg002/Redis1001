@@ -25,3 +25,17 @@ What was I doing?
 		configure environment variables
 	Automate deployment to Azure
 		Create service plan ARM		
+	Log some latencies to App insights
+	Fix ARM to create service plan
+
+	Important steps during deployment
+	---------------------------------
+		You configured the following
+		INSTRUMENTATION_KEY
+		REDISDEMO_CNSTRING_ADMIN (remember to add allowAdmin=true preceded by a comma)
+		REDISDEMO_CNSTRING_TRANSACTIONS
+
+	Find out
+	--------
+		How to flush all keys with a specific prefix? e.g. customer_
+		

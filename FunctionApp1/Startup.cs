@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using REDIS = StackExchange.Redis;
 using System;
 using Microsoft.Extensions.Caching.StackExchangeRedis;
+using System.Linq;
 
 [assembly: FunctionsStartup(typeof(FunctionApp1.Startup))]
 
@@ -29,7 +30,7 @@ namespace FunctionApp1
                 ConnectionStringAdmin = provider.GetRequiredService<IConfiguration>()["REDISDEMO_CNSTRING_ADMIN"],
                 ConnectionStringTxn = provider.GetRequiredService<IConfiguration>()["REDISDEMO_CNSTRING_TRANSACTIONS"]
             });
-            builder.Services.AddSingleton<REDIS.IServer>(this.CreateRedisServerForManagement);
+            builder.Services.AddTransient<REDIS.IServer>(this.CreateRedisServerForManagement);
 
             builder.Services.AddStackExchangeRedisCache(opt =>
             {
@@ -43,8 +44,14 @@ namespace FunctionApp1
             var redisConfig = provider.GetService<RedisConfiguration>();
             var cnstringAdmin = redisConfig.ConnectionStringAdmin;
             //You need allowAdmin=true to call methods .FlushDatabase and .Keys()
+            //https://stackexchange.github.io/StackExchange.Redis/Basics.html
             var redis = REDIS.ConnectionMultiplexer.Connect(cnstringAdmin);
-            return redis.GetServer(redisConfig.ConnectionStringTxn);
+            var firstEndPoint = redis.GetEndPoints().FirstOrDefault();
+            if (firstEndPoint == null)
+            {
+                throw new ArgumentException("The endpoints collection was empty. Could not get an end point from Redis connection multiplexer.");
+            }
+            return redis.GetServer(firstEndPoint);
         }
     }
 }
