@@ -66,6 +66,37 @@ namespace FunctionApp1
             }
         }
 
+        [FunctionName("BulkAddCustomers")]
+        public async Task<IActionResult> BulkAddCustomers(
+           [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "bulkadd")] HttpRequest req
+           )
+        {
+            _logger.LogInformation("C# HTTP trigger function BulkAddCustomers");
+
+            const int MAXITEMS = 10000;
+
+            try
+            {
+                string count = req.Query["count"];
+
+                int countOfItems = (count == null) ? MAXITEMS : int.Parse(count);
+
+                for (int i = 0; i < countOfItems; i++)
+                {
+                    string cacheKey = CreateKeyFromIndex(i);
+                    var c = new Customer($"email-{i}", $"firstname-{i}", $"lastname-{i}");
+                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(c);
+                    await _cacheTxnServerInstance.SetStringAsync(cacheKey, json);
+                }
+                return new OkObjectResult($"Count of items added to cache={countOfItems}. Structur of key= 'customer-{{index}}'");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError("Error while attempting to invoke BulkAddCustomers", ex);
+                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
         private string CreateKeyFromIndex(int itemIndex)
         {
             return $"customer-{itemIndex}";

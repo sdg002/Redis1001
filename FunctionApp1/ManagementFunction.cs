@@ -13,17 +13,17 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace FunctionApp1
 {
-    public class Function1
+    public class ManagementFunction
     {
         private readonly IConfiguration _config;
-        private readonly ILogger<Function1> _logger;
+        private readonly ILogger<ManagementFunction> _logger;
         private readonly RedisConfiguration _redisConfig;
         private readonly REDIS.IServer _redisAdminServerInstance;
         private readonly IDistributedCache _cacheTxnServerInstance;
 
-        public Function1(
+        public ManagementFunction(
             IConfiguration config,
-            ILogger<Function1> logger,
+            ILogger<ManagementFunction> logger,
             RedisConfiguration redisConfig,
             REDIS.IServer redisServer,
             IDistributedCache cacheTxnServerInstance)
@@ -33,36 +33,6 @@ namespace FunctionApp1
             _redisConfig = redisConfig;
             _redisAdminServerInstance = redisServer;
             _cacheTxnServerInstance = cacheTxnServerInstance;
-        }
-
-        [FunctionName("BulkAddCustomers")]
-        public async Task<IActionResult> BulkAddCustomers(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "bulkadd")] HttpRequest req
-            )
-        {
-            _logger.LogInformation("C# HTTP trigger function BulkAddCustomers");
-
-            const int MAXITEMS = 10000;
-
-            try
-            {
-                string count = req.Query["count"];
-
-                int countOfItems = (count == null) ? MAXITEMS : int.Parse(count);
-
-                for (int i = 0; i < countOfItems; i++)
-                {
-                    var c = new Customer($"email-{i}", $"firstname-{i}", $"lastname-{i}");
-                    string json = Newtonsoft.Json.JsonConvert.SerializeObject(c);
-                    await _cacheTxnServerInstance.SetStringAsync($"customer-{i}", json);
-                }
-                return new OkObjectResult($"Count of items added to cache={countOfItems}. Structur of key= 'customer-{{index}}'");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError("Error while attempting to invoke BulkAddCustomers", ex);
-                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
-            }
         }
 
         [FunctionName("GetCachedItemCount")]
