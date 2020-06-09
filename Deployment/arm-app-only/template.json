@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "subscriptionId": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "serverFarmResourceGroup": {
+      "type": "string"
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "S1",
+      "metadata": {
+        "description": "The SKU of App Service Plan, by default is Standard S1"
+      }
+    },
+    "location": {
+      "type": "string"
+    },
+    "hostingPlanName": {
+      "type": "string"
+    },
+    "instrumentationkey": {
+      "type": "string"
+    }
+  },
+  "variables": {
+  },
+  "resources": [
+    {
+      "apiVersion": "2018-11-01",
+      "type": "Microsoft.Web/sites",
+      "kind": "functionapp",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+      },
+      "dependsOn": [
+
+      ]
+    }
+  ]
+}

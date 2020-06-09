@@ -1,0 +1,24 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "subscriptionId": {
+      "value": "635a2074-cc31-43ac-bebe-2bcd67e1abfe"
+    },
+    "name": {
+      "value": null
+    },
+    "location": {
+      "value": "uksouth"
+    },
+    "hostingPlanName": {
+      "value": null
+    },
+    "serverFarmResourceGroup": {
+      "value": "junk1"
+    },
+    "instrumentationkey": {
+      "value": "to be provided"
+    }
+  }
+}
