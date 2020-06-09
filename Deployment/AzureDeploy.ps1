@@ -9,6 +9,7 @@ $rediscache="saudemo001-$envname"
 $storageaccountname="stgsaudemo001"
 $appinsights="saudemo001-appinsights-$envname"
 $appserviceplan="sauplan001-$envname"
+$webappname="redis-demo-webapp-001"
 
 $scriptfolder=$PSScriptRoot
 
@@ -35,8 +36,17 @@ $keys=Get-AzRedisCacheKey -Name $rediscache
 #
 "Creating Application Insights"
 New-AzResourceGroupDeployment -TemplateFile $scriptfolder\arm2-appinsights\template.json -TemplateParameterFile $scriptfolder\arm2-appinsights\parameters.json  -ResourceGroupName $resourcegroupname  -nameFromTemplate $appinsights -regionId $location -Verbose
+#Get the instru key
+"Getting the instru key"
+$r=Get-AzApplicationInsights -resourceGroupName $resourcegroupname -name $appinsights
+
 #
 #Create plan
 #
 "Creating plan"
-New-AzResourceGroupDeployment -TemplateFile $scriptfolder\arm-plan-only\template.json -TemplateParameterFile $scriptfolder\arm-plan-only\parameters.json  -ResourceGroupName $resourcegroupname  -nameFromTemplate $appserviceplan -location $location
+New-AzResourceGroupDeployment -TemplateFile $scriptfolder\arm-plan-only\template.json -TemplateParameterFile $scriptfolder\arm-plan-only\parameters.json  -ResourceGroupName $resourcegroupname  -planname $appserviceplan -location $location
+#
+#Create app
+#
+"Creating app service"
+New-AzResourceGroupDeployment -TemplateFile $scriptfolder\arm-app-only\template.json -TemplateParameterFile $scriptfolder\arm-app-only\parameters.json -ResourceGroupName $resourcegroupname -nameFromTemplate $webappname  -location $location  -hostingPlanName  $appserviceplan -instrumentationkey $r.InstrumentationKey -serverFarmResourceGroup  $resourcegroupname
