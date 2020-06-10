@@ -18,16 +18,8 @@ namespace FunctionApp1
             configurationBuilder.AddEnvironmentVariables();
             IConfiguration config = configurationBuilder.Build();
             builder.Services.AddSingleton<IConfiguration>(config);
-
-            builder.Services.Configure<RedisConfiguration>(config, redisconfig =>
-            {
-                var redisConfig = new RedisConfiguration();
-                redisConfig.ConnectionStringAdmin = config["REDISDEMO_CNSTRING_ADMIN"];
-                redisConfig.ConnectionStringTxn = config["REDISDEMO_CNSTRING_TRANSACTIONS"];
-            });
             builder.Services.AddSingleton<RedisConfiguration>(provider => new RedisConfiguration
             {
-                ConnectionStringAdmin = provider.GetRequiredService<IConfiguration>()["REDISDEMO_CNSTRING_ADMIN"],
                 ConnectionStringTxn = provider.GetRequiredService<IConfiguration>()["REDISDEMO_CNSTRING_TRANSACTIONS"]
             });
             builder.Services.AddTransient<REDIS.IServer>(this.CreateRedisServerForManagement);

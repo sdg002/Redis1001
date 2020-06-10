@@ -2,7 +2,7 @@
 {
     public class RedisConfiguration
     {
-        public string ConnectionStringAdmin { get; internal set; }
+        public string ConnectionStringAdmin => $"{this.ConnectionStringTxn},allowAdmin=true";
 
         public string ConnectionStringTxn { get; internal set; }
 
