@@ -26,6 +26,9 @@
     },
     "instrumentationkey": {
       "type": "string"
+    },
+    "rediscnstring": {
+      "type": "string"
     }
   },
   "variables": {
@@ -38,7 +41,19 @@
       "name": "[parameters('name')]",
       "location": "[parameters('location')]",
       "properties": {
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]",
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[parameters('instrumentationkey')]"
+            },
+            {
+              "name": "REDISDEMO_CNSTRING",
+              "value": "[parameters('rediscnstring')]"
+            }
+          ]
+        }
       },
       "dependsOn": [
 
