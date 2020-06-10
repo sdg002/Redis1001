@@ -28,7 +28,7 @@ What was I doing?
 	Log some latencies to App insights
 	Fix ARM to create service plan
 	Use local.settings.json for config management
-	How to configure ENV variable post deployment?
+	How to delete a resource safely? e.g function app
 
 
 
@@ -39,6 +39,19 @@ What was I doing?
 		REDISDEMO_CNSTRING_ADMIN (remember to add allowAdmin=true preceded by a comma)
 		REDISDEMO_CNSTRING_TRANSACTIONS
 		"kind": "functionapp", is very important in the function app template (use template from portal)
+
+		How to access function app settings?
+		-------------------------------------
+		$junk=get-AzWebApp -ResourceGroupName $resourcegroupname -Name $webappname
+		$junk.SiteConfig.AppSettings  #will give you a list of NameValue 
+
+		How to set function app settings?
+		----------------------------------
+		Set-AzWebApp -ResourceGroupName $resourcegroupname -Name $webappname -AppSettings @{"name002"="value00222"; "name003"="value003"}
+		Attention! You are going to erase all existing settings
+		See example in https://stackoverflow.com/questions/55487426/azure-function-and-powershell-unable-to-set-connection-strings-with-set-azwebap
+
+		When dropping App Function, also drop the plan
 
 	Find out
 	--------

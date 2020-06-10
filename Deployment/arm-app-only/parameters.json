@@ -15,7 +15,7 @@
       "value": null
     },
     "serverFarmResourceGroup": {
-      "value": "junk1"
+      "value": null
     },
     "instrumentationkey": {
       "value": "to be provided"
