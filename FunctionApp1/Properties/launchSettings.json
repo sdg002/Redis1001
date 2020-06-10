@@ -3,8 +3,7 @@
     "FunctionApp1": {
       "commandName": "Project",
       "environmentVariables": {
-        "REDISDEMO_CNSTRING_TRANSACTIONS": "localhost:6379",
-        "REDISDEMO_CNSTRING_ADMIN": "localhost:6379,allowAdmin=true"
+        "REDISDEMO_CNSTRING": "localhost:6379"
       }
     }
   }

@@ -20,7 +20,7 @@ namespace FunctionApp1
             builder.Services.AddSingleton<IConfiguration>(config);
             builder.Services.AddSingleton<RedisConfiguration>(provider => new RedisConfiguration
             {
-                ConnectionStringTxn = provider.GetRequiredService<IConfiguration>()["REDISDEMO_CNSTRING_TRANSACTIONS"]
+                ConnectionStringTxn = provider.GetRequiredService<IConfiguration>()["REDISDEMO_CNSTRING"]
             });
             builder.Services.AddTransient<REDIS.IServer>(this.CreateRedisServerForManagement);
 
