@@ -22,7 +22,7 @@ namespace FunctionApp1
             {
                 ConnectionStringTxn = provider.GetRequiredService<IConfiguration>()["REDISDEMO_CNSTRING"]
             });
-            builder.Services.AddTransient<REDIS.IServer>(this.CreateRedisServerForManagement);
+            builder.Services.AddSingleton<REDIS.IServer>(this.CreateRedisServerForManagement);
 
             builder.Services.AddStackExchangeRedisCache(opt =>
             {

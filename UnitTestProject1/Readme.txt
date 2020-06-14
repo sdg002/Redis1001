@@ -51,7 +51,35 @@ What was I doing?
 		Attention! You are going to erase all existing settings
 		See example in https://stackoverflow.com/questions/55487426/azure-function-and-powershell-unable-to-set-connection-strings-with-set-azwebap
 
-		When dropping App Function, also drop the plan
+		When dropping App Service, also drop the App Service Plan (must). You cannot drop the plan if there is a cild App Service - so drop App Service
+
+		How to create a App Service Plan programmatically?
+		--------------------------------------------------
+		New-AzAppServicePlan -ResourceGroupName "rg-dev-redis-demo" -Location "uksouth" -Tier "basic" -NumberofWorkers 2 -Name MyPowerShellAppServicePlan
+
+		How to create a web app using Powershell?
+		------------------------------------------
+		New-AzWebApp -ResourceGroupName rg-dev-redis-demo -Location uksouth -AppServicePlan MyPowerShellAppServicePlan  -Name MyPowerShellWebApp 
+		Note - this will not work for Function apps
+
+		How to use a Github template URL to create plan+functionapp+appinsights?
+		------------------------------------------------------------------------
+		New-AzResourceGroupDeployment -TemplateUri https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-function-app-create-dynamic/azuredeploy.json -ResourceGroupName rg-githubtry1 -appname  GithubFuncApp -runtime dotnet
+		Note - I had to change the runtime to "dotnet" from the default "node"
+
+		Attention!While constructing the Reds connection string using Powershell
+		-------------------------------------------------------------------------
+		Use the SslPort and not regular Port otherwise you are going to get connection refused
+
+		Attention! Add Singleton and not Transient for performance
+		-----------------------------------------------------------
+		You do not want to re-create the connection multiplexer for every HTTP request
+
+		How to set config parameters?
+		-----------------------------
+		Use the Az command line option "functionapp" and "config" and "appsettings"
+		az functionapp config appsettings set --name $webappname --resource-group $resourcegroupname --settings REDISDEMO_CNSTRING=$redisCnStringTxn --subscription $subscription
+
 
 	Find out
 	--------
@@ -69,4 +97,15 @@ What was I doing?
 	https://stackexchange.github.io/StackExchange.Redis/Basics.html (Redis connections, servers)
 	https://docs.microsoft.com/en-us/azure/azure-functions/functions-infrastructure-as-code (ARM template properties for function apps)
 
+	
+
+	TRY VISUAL STUDIO APP FUNCTION BY HAND
+	*)EXAMINE ALL CONFIG VARIABLES
+	-----------------------------------------------------------
+	*)CREATE A NEW ARM TEMPLATE (PLAN2 and APP2 ) FROM PORTAL
+	------------------------------------------------------------
+	*)something WRONG WITH POWERSHELL
+
+	*)VERY SLOW PING RESPONSE COMPARED TO MANUAL VISUAL STUDIO CREATED
+	WRITE SOME CODE TO BENCHMARK
 	

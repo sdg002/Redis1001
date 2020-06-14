@@ -50,7 +50,7 @@ namespace FunctionApp1
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while attempting to invoke GetCachedItemCount", ex);
+                _logger.LogError(ex, "Error while attempting to invoke GetCachedItemCount");
                 return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
             }
         }
@@ -68,7 +68,7 @@ namespace FunctionApp1
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while attempting to FlushCache", ex);
+                _logger.LogError(ex, "Error while attempting to FlushCache");
                 return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
             }
         }
@@ -89,7 +89,7 @@ namespace FunctionApp1
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error while attempting to invoke GetCachedItemCount", ex);
+                _logger.LogError(ex, "Error while attempting to invoke GetCachedItemCount");
                 return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
             }
         }

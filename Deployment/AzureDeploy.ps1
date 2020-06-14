@@ -10,9 +10,11 @@ $storageaccountname="stgsaudemo001"
 $appinsights="saudemo001-appinsights-$envname"
 $appserviceplan="sauplan001-$envname"
 $webappname="redis-demo-webapp-001"
+$subscription="Pay-As-You-Go-demo"
 
 $scriptfolder=$PSScriptRoot
 
+Set-AzContext -Subscription $subscription
 New-AzResourceGroup -Name $resourcegroupname -Location $location -Force -Verbose
 
 #
@@ -28,50 +30,20 @@ New-AzResourceGroupDeployment -ResourceGroupName $resourcegroupname -TemplateFil
 #
 #Get connection parameters for the newly created Redis instance
 #
-$config=Get-AzRedisCache -name $rediscache
+$redisConfig=Get-AzRedisCache -name $rediscache
 $redisKeys=Get-AzRedisCacheKey -Name $rediscache
-"Host name {0}" -f $config.hostname
-"Port number {0}" -f $config.port
-"Key {0}" -f $keys.PrimaryKey
-$redisCnStringTxn="{0}:{1},password={2},ssl=True,abortConnect=False" -f $config.hostname,$config.Port,$redisKeys.PrimaryKey,
+"Host name {0}" -f $redisConfig.hostname
+"Port number {0}" -f $redisConfig.port
+"Key {0}" -f $redisKeys.PrimaryKey
+$redisCnStringTxn="{0}:{1},password={2},ssl=True,abortConnect=False" -f $config.hostname,$config.SslPort,$redisKeys.PrimaryKey
 #
-#Create application insights
+#Create Plan+FunctionApp+AppInsights
 #
-"Creating Application Insights"
-New-AzResourceGroupDeployment -TemplateFile $scriptfolder\arm2-appinsights\template.json -TemplateParameterFile $scriptfolder\arm2-appinsights\parameters.json  -ResourceGroupName $resourcegroupname  -nameFromTemplate $appinsights -regionId $location -Verbose
-#Get the instru key
-"Getting the instru key"
-$appInsights=Get-AzApplicationInsights -resourceGroupName $resourcegroupname -name $appinsights
+$uriTemplate="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-function-app-create-dynamic/azuredeploy.json"
+New-AzResourceGroupDeployment -TemplateUri $uriTemplate -ResourceGroupName $resourcegroupname -appname  $webappname -runtime dotnet
+
 #
-#Delete existing App Service if exists
+#Update redis cn string
 #
-"Checking for presence of App Service"
-$appFuncs=Get-AzResource -ResourceGroupName $resourcegroupname | where -FilterScript {$_.Name -eq $webappname}
-if ($appFuncs -ne $null)
-{
-    "Deleting App Service $webappname" 
-    Remove-AzResource -ResourceGroupName $resourcegroupname -ResourceName $webappname -ResourceType "Microsoft.Web/sites" -Force
-    "Deleted app service $webappname" 
-}
-#
-#Delete App Service Plan if exists
-#
-"Checking for presence of App Service Plan $appserviceplan"
-$existingAppPlans=Get-AzResource -ResourceGroupName $resourcegroupname | where -FilterScript {$_.Name -eq $appserviceplan}
-if ($existingAppPlans -ne $null)
-{
-    "Deleting App Service Plan $appserviceplan"
-    Remove-AzResource -ResourceGroupName $resourcegroupname -ResourceName $appserviceplan -ResourceType "Microsoft.Web/serverfarms" -Force
-    "Deleted App Service Plan $appserviceplan" 
-    
-}
-#
-#Create App Service Plan
-#
-"Creating plan $appserviceplan"
-New-AzResourceGroupDeployment -TemplateFile $scriptfolder\arm-plan-only\template.json -TemplateParameterFile $scriptfolder\arm-plan-only\parameters.json  -ResourceGroupName $resourcegroupname  -planname $appserviceplan -location $location
-#
-#Create App Service
-#
-"Creating app service $webappname"
-New-AzResourceGroupDeployment -TemplateFile $scriptfolder\arm-app-only\template.json -TemplateParameterFile $scriptfolder\arm-app-only\parameters.json -ResourceGroupName $resourcegroupname -nameFromTemplate $webappname  -location $location  -hostingPlanName  $appserviceplan -instrumentationkey $appInsights.InstrumentationKey -serverFarmResourceGroup  $resourcegroupname -rediscnstring $redisCnStringTxn  -Verbose
+az functionapp config appsettings set --name $webappname --resource-group $resourcegroupname --settings REDISDEMO_CNSTRING=$redisCnStringTxn --subscription $subscription
+

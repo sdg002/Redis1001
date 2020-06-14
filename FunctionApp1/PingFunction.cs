@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 
@@ -13,8 +14,11 @@ namespace FunctionApp1
     /// </summary>
     public class PingFunction
     {
-        public PingFunction()
+        private readonly ILogger<PingFunction> _logger;
+
+        public PingFunction(ILogger<PingFunction> logger)
         {
+            _logger = logger;
         }
 
         [FunctionName("simpleping")]
@@ -22,6 +26,7 @@ namespace FunctionApp1
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "simpleping")] HttpRequest req
             )
         {
+            _logger.LogInformation("C# method SimplePing");
             var time = DateTime.UtcNow;
             var oResult = new ObjectResult(time);
             oResult.StatusCode = (int)HttpStatusCode.OK;
