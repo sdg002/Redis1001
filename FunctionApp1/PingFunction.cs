@@ -27,7 +27,7 @@ namespace FunctionApp1
             )
         {
             _logger.LogInformation("C# method SimplePing");
-            var time = DateTime.UtcNow;
+            var time = $"Server time is {DateTime.UtcNow}";
             var oResult = new ObjectResult(time);
             oResult.StatusCode = (int)HttpStatusCode.OK;
             return oResult;

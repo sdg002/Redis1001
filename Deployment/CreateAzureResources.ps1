@@ -23,6 +23,13 @@ New-AzResourceGroup -Name $resourcegroupname -Location $location -Force -Verbose
 New-AzResourceGroupDeployment -ResourceGroupName $resourcegroupname -TemplateFile $scriptfolder\arm-storageaccount\template.json -TemplateParameterFile $scriptfolder\arm-storageaccount\parameters.json -location $location -storageAccountName $storageaccountname -Verbose
 $oStorageAccount=Get-AzResource -ResourceGroupName $resourcegroupname -Name $storageaccountname
 #
+#Create Plan+FunctionApp+AppInsights
+#
+"Deploying ARM template 101-function-app-create-dynamic" 
+$uriTemplate="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-function-app-create-dynamic/azuredeploy.json"
+New-AzResourceGroupDeployment -TemplateUri $uriTemplate -ResourceGroupName $resourcegroupname -appname  $webappname -runtime dotnet
+"Deploying ARM template complete"
+#
 #Create Redis cache
 #
 "Creating Redis Cache"
@@ -38,13 +45,6 @@ $redisKeys=Get-AzRedisCacheKey -Name $rediscache
 "SSL Port number {0}" -f $redisConfig.SslPort
 "Key {0}" -f $redisKeys.PrimaryKey
 $redisCnStringTxn="{0}:{1},password={2},ssl=True,abortConnect=False" -f $redisConfig.hostname,$redisConfig.SslPort,$redisKeys.PrimaryKey
-#
-#Create Plan+FunctionApp+AppInsights
-#
-"Deploying ARM template 101-function-app-create-dynamic" 
-$uriTemplate="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-function-app-create-dynamic/azuredeploy.json"
-New-AzResourceGroupDeployment -TemplateUri $uriTemplate -ResourceGroupName $resourcegroupname -appname  $webappname -runtime dotnet
-"Deploying ARM template complete"
 #
 #Update redis cn string
 #
