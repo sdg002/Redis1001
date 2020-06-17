@@ -15,20 +15,26 @@ $subscription="Pay-As-You-Go-demo"
 $scriptfolder=$PSScriptRoot
 
 Set-AzContext -Subscription $subscription
-New-AzResourceGroup -Name $resourcegroupname -Location $location -Force -Verbose
-
+"Going to use subscription:{0}" -f $subscription
 #
 #Create resource group
 #
+New-AzResourceGroup -Name $resourcegroupname -Location $location -Force -Verbose
+"Created resource group:{0}" -f $resourcegroupname
+#
+#Create storage account
+#
+"Creating storage account"
 New-AzResourceGroupDeployment -ResourceGroupName $resourcegroupname -TemplateFile $scriptfolder\arm-storageaccount\template.json -TemplateParameterFile $scriptfolder\arm-storageaccount\parameters.json -location $location -storageAccountName $storageaccountname -Verbose
 $oStorageAccount=Get-AzResource -ResourceGroupName $resourcegroupname -Name $storageaccountname
+"Storage account created:{0}" -f $oStorageAccount.Name
 #
 #Create Plan+FunctionApp+AppInsights
 #
 "Deploying ARM template 101-function-app-create-dynamic" 
 $uriTemplate="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/101-function-app-create-dynamic/azuredeploy.json"
 New-AzResourceGroupDeployment -TemplateUri $uriTemplate -ResourceGroupName $resourcegroupname -appname  $webappname -runtime dotnet
-"Deploying ARM template complete"
+"Function app+plan created"
 #
 #Create Redis cache
 #
@@ -50,5 +56,5 @@ $redisCnStringTxn="{0}:{1},password={2},ssl=True,abortConnect=False" -f $redisCo
 #
 "Updating AppSetting in function app with Redis connection string"
 az functionapp config appsettings set --name $webappname --resource-group $resourcegroupname --settings REDISDEMO_CNSTRING=$redisCnStringTxn --subscription $subscription
-"Appsetting updated"
+"Appsetting of function app updated"
 
