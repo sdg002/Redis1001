@@ -3,10 +3,12 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+
+[assembly: InternalsVisibleToAttribute("UnitTestProject1")]
 
 namespace RedisBenchmark
 {
@@ -75,15 +77,41 @@ namespace RedisBenchmark
             result.Iterations = iterations;
             result.TotalReads = _cacheOperations.Count(d => d.OperationType == CacheOperationType.Read);
             result.TotalWrites = _cacheOperations.Count(d => d.OperationType == CacheOperationType.Write);
-            result.MeanLatency = _cacheOperations.Average(d => d.TimeTaken);
-            result.NinetyFivePercentLatency = Compute95Percentile(_cacheOperations.Select(c => c.TimeTaken));
+
+            var readOperations = _cacheOperations
+                .Where(d => d.OperationType == CacheOperationType.Read)
+                .ToArray();
+
+            result.ReadLatency = CreateLatencyResult(readOperations);
+
+            var writeOperations = _cacheOperations
+                .Where(d => d.OperationType == CacheOperationType.Write)
+                .ToArray();
+
+            result.WriteLatency = CreateLatencyResult(writeOperations);
+
             return result;
         }
 
-        private double Compute95Percentile(IEnumerable<long> enumerable)
+        private Latency CreateLatencyResult(IEnumerable<TestOperation> writeOperations)
         {
-            //TODO do this
-            return 0.0;//TODO to be done
+            var latencyResult = new Latency();
+            double[] timings = writeOperations
+                .Select(op => Convert.ToDouble(op.TimeTaken))
+                .ToArray();
+            latencyResult.MaxLatency = timings.Max();
+            latencyResult.MinLatency = timings.Min();
+            latencyResult.MeanLatency = timings.Average();
+            latencyResult.NinetyFiveReadPercentLatency = Compute95Percentile(timings);
+            return latencyResult;
+        }
+
+        internal T Compute95Percentile<T>(IEnumerable<T> enumerable)
+        {
+            var sorted = enumerable.OrderBy(o => o).ToArray();
+            int index95 = (int)Math.Round(sorted.Length * 0.95);
+            var result = sorted[index95 - 1];
+            return result;
         }
 
         private void CreateWeightedSetOfCacheOperations()

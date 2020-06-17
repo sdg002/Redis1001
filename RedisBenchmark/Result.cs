@@ -12,7 +12,7 @@ namespace RedisBenchmark
         public int Iterations { get; set; }
         public int TotalReads { get; internal set; }
         public int TotalWrites { get; internal set; }
-        public double MeanLatency { get; internal set; }
-        public double NinetyFivePercentLatency { get; internal set; }
+        public Latency ReadLatency { get; set; }
+        public Latency WriteLatency { get; set; }
     }
 }
