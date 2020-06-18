@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RedisBenchmark
+﻿namespace RedisBenchmark
 {
     /// <summary>
     /// Benchmark results
@@ -14,5 +10,11 @@ namespace RedisBenchmark
         public int TotalWrites { get; internal set; }
         public Latency ReadLatency { get; set; }
         public Latency WriteLatency { get; set; }
+        public int Allocations { get; internal set; }
+
+        /// <summary>
+        /// Total time take for the test (ms)
+        /// </summary>
+        public long TotalTime { get; internal set; }
     }
 }

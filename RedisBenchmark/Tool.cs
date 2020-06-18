@@ -57,6 +57,8 @@ namespace RedisBenchmark
             CreateWeightedSetOfCacheOperations();
             Result result = new Result();
             int iterations = 0;
+            Stopwatch swOuter = new Stopwatch();
+            swOuter.Start();
             Action<TestOperation> fnCacheOperation = delegate (TestOperation op)
             {
                 Interlocked.Increment(ref iterations);
@@ -73,8 +75,12 @@ namespace RedisBenchmark
                 sw.Stop();
                 op.TimeTaken = sw.ElapsedMilliseconds;
             };
+
             Parallel.ForEach(_cacheOperations, fnCacheOperation);
+            swOuter.Stop();
+            result.TotalTime = swOuter.ElapsedMilliseconds;
             result.Iterations = iterations;
+            result.Allocations = this.ObjectsAllocated;
             result.TotalReads = _cacheOperations.Count(d => d.OperationType == CacheOperationType.Read);
             result.TotalWrites = _cacheOperations.Count(d => d.OperationType == CacheOperationType.Write);
 
@@ -99,6 +105,10 @@ namespace RedisBenchmark
             double[] timings = writeOperations
                 .Select(op => Convert.ToDouble(op.TimeTaken))
                 .ToArray();
+            latencyResult.AveragePayloadSize = (int)writeOperations
+                .Select(op => op.TestData.Payload.Length)
+                .Average();
+            latencyResult.Count = timings.Length;
             latencyResult.MaxLatency = timings.Max();
             latencyResult.MinLatency = timings.Min();
             latencyResult.MeanLatency = timings.Average();
@@ -150,8 +160,9 @@ namespace RedisBenchmark
 
         private byte[] GeneratePayloadWithSize(int sizeOfPayload)
         {
-            //TODO do this
-            return new byte[] { 1, 2, 3, 4, 5 };
+            var buffer = new byte[sizeOfPayload];
+            _random.NextBytes(buffer);
+            return buffer;
         }
 
         private CacheOperationType RandomlyGenerateOperationType()

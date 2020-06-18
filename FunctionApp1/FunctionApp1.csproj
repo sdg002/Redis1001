@@ -19,6 +19,9 @@
 
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\RedisBenchmark\RedisBenchmark.csproj" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="host.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
