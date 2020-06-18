@@ -5,6 +5,18 @@
     /// </summary>
     public class Latency
     {
+        public static Latency Empty()
+        {
+            var l = new Latency();
+            l.AveragePayloadSize = 0;
+            l.Count = 0;
+            l.MaxLatency = double.NaN;
+            l.MeanLatency = double.NaN;
+            l.MinLatency = double.NaN;
+            l.NinetyFiveReadPercentLatency = double.NaN;
+            return l;
+        }
+
         /// <summary>
         /// Actual count of operations performed
         /// </summary>

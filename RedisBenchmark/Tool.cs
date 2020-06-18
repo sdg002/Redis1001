@@ -105,6 +105,7 @@ namespace RedisBenchmark
             double[] timings = writeOperations
                 .Select(op => Convert.ToDouble(op.TimeTaken))
                 .ToArray();
+            if (timings.Length == 0) return Latency.Empty();
             latencyResult.AveragePayloadSize = (int)writeOperations
                 .Select(op => op.TestData.Payload.Length)
                 .Average();

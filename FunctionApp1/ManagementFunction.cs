@@ -1,15 +1,17 @@
-using System;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
-using REDIS = StackExchange.Redis;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using RedisBenchmark;
+using System;
 using System.Linq;
 using System.Net;
-using Microsoft.Extensions.Caching.Distributed;
+using System.Threading.Tasks;
+using REDIS = StackExchange.Redis;
 
 namespace FunctionApp1
 {
@@ -89,7 +91,49 @@ namespace FunctionApp1
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error while attempting to invoke GetCachedItemCount");
+                _logger.LogError(ex, "Error while attempting to invoke Ping");
+                return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
+            }
+        }
+
+        [FunctionName("Benchmark")]
+        public async Task<IActionResult> Benchmark(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "benchmark")] HttpRequest req
+            )
+        {
+            _logger.LogInformation($"C# HTTP trigger function {nameof(Benchmark)}");
+            try
+            {
+                string siterations = req.Query.ContainsKey("iterations") ? req.Query["iterations"].ToString() : "10000";
+                int iterations = int.Parse(siterations);
+
+                string sAllocations = req.Query.ContainsKey("allocations") ? req.Query["allocations"].ToString() : "1000";
+                int allocations = int.Parse(sAllocations);
+
+                string sPayloadSize = req.Query.ContainsKey("payload") ? req.Query["payload"].ToString() : "1000";
+                int payloadSize = int.Parse(sPayloadSize);
+
+                string sReadWeight = req.Query.ContainsKey("readweight") ? req.Query["readweight"].ToString() : "80";
+                int readWeight = int.Parse(sReadWeight);
+
+                string sWriteWeight = req.Query.ContainsKey("writeweight") ? req.Query["writeweight"].ToString() : "80";
+                int writeWeight = int.Parse(sWriteWeight);
+
+                await _redisAdminServerInstance.FlushDatabaseAsync();
+                var tool = new Tool(
+                    _cacheTxnServerInstance,
+                    readWeight, writeWeight,
+                    NullLogger<Tool>.Instance,
+                    iterations, allocations, payloadSize);
+
+                var latencyResult = tool.Run();
+                var oResult = new ObjectResult(latencyResult);
+                oResult.StatusCode = (int)HttpStatusCode.OK;
+                return oResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error while attempting to invoke {nameof(Benchmark)}");
                 return new StatusCodeResult((int)HttpStatusCode.InternalServerError);
             }
         }
