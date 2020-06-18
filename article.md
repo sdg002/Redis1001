@@ -1,7 +1,14 @@
 
 # About
-to be done , mention about scope of this arcticle
-mention about advanced features of Redis which are not in this scope
+In this article we will do a walk through of how to use Redis Cache from a .NET Core Serverless HTTP function. 
+Redis is a very powerful caching engine and offers features beyond simple key-value pair caching. In this article, I will restrict my focus to the following topics:
+- Installing Redis locally and on Azure
+- Using the command line tools of Redis
+- Scripting the installation of Azure Redis via PowerShell and ARM templates
+- Writing some sample C# code to demonstrate the key-value pair caching aspect of Redis using a sample Azure HTTP trigger function
+- Benchmarking the latency and throughput of Redis using simple C# client code
+
+
 
 # What is a distributed cache?
 to be done.
