@@ -7,8 +7,12 @@ using System.Diagnostics;
 
 namespace UnitTestProject1
 {
+    /// <summary>
+    /// Demonstrates how to create an instance of IDistributedCache via dependency injection
+    /// You will need a local installation of Redis Server
+    /// </summary>
     [TestClass]
-    public class DistributedCacheTests
+    public class CreateDistributedCacheDITests
     {
         public static IConfigurationRoot Config { get; set; }
 
@@ -37,11 +41,13 @@ namespace UnitTestProject1
         [TestMethod]
         public void SetGetItem()
         {
+            string expectedData = $"value {Guid.NewGuid()}";
             var cache = _sprovider.GetService<IDistributedCache>();
             string key = $"key-{Guid.NewGuid()}";
-            cache.SetString(key, $"value {Guid.NewGuid()}");
-            var item = cache.GetString(key);
-            Trace.WriteLine($"Got item from cache {item} using key={key}");
+            cache.SetString(key, expectedData);
+            var actualData = cache.GetString(key);
+            Trace.WriteLine($"Got item from cache {actualData} using key={key}");
+            Assert.AreEqual(expectedData, actualData);
         }
     }
 }
