@@ -34,11 +34,6 @@ What was I doing?
 
 	Lessons learn/Important steps during deployment
 	---------------------------------
-		You configured the following
-		INSTRUMENTATION_KEY
-		REDISDEMO_CNSTRING_ADMIN (remember to add allowAdmin=true preceded by a comma)
-		REDISDEMO_CNSTRING_TRANSACTIONS
-		"kind": "functionapp", is very important in the function app template (use template from portal)
 
 		How to access function app settings?
 		-------------------------------------
@@ -86,16 +81,24 @@ What was I doing?
 		7za.exe [path to new zip file] [source folder]\*
 		The ZIP must NOT contain an outer folder. It must begin at host.json
 
+		How to invoke the REST end point via Powershell?
+		-------------------------------------------------
+		$url="https://redis-demo-webapp-001.azurewebsites.net/api/benchmark/?iterations=5000&allocations=10000&payload=500&readweight=95&writeweight=5"
+		$url2="https://redis-demo-webapp-001.azurewebsites.net/api/benchmark/?iterations=20000&allocations=10000&payload=2500&readweight=95&writeweight=5"
+		$r3=Invoke-WebRequest -Uri $url2 -Method Post 
+		$r3.Content 
+		$r3.Content | Out-File -FilePath .\results.r3.txt
 
-	Find out
-	--------
 		How to flush all keys with a specific prefix? e.g. customer_
-		Good link on deploying Function Apps through ARM template
-			https://docs.microsoft.com/en-us/azure/azure-functions/functions-infrastructure-as-code
-			All essential parameters are defined
-		See the following properties 
-			computeMode
-			sku:name lets you decide the Plan
+		------------------------------------------------------------
+		You cannot. You can delete all keys using FLUSHALL
+
+
+	Find out/Next steps
+	-------------------
+	*Finish the article
+	*Write PowerShell script to gather statistics
+	*Do a sense check using Redis benchmark tool if it matches C#
 	
 
 	Good links

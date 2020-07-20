@@ -49,5 +49,31 @@ namespace UnitTestProject1
             Trace.WriteLine($"Got item from cache {actualData} using key={key}");
             Assert.AreEqual(expectedData, actualData);
         }
+
+        [TestMethod]
+        public void Condition_Injection_Of_IDistributedCache()
+        {
+            var builder = new ConfigurationBuilder();
+            builder.AddJsonFile("settings.json", optional: false);
+            Config = builder.Build();
+
+            ServiceCollection coll = new ServiceCollection();
+            if (System.Environment.GetEnvironmentVariable("localdebug") == "1")
+            {
+                coll.AddDistributedMemoryCache();
+            }
+            else
+            {
+                coll.AddStackExchangeRedisCache(options =>
+                {
+                    string server = Config["redis-server"];
+                    string port = Config["redis-port"];
+                    string cnstring = $"{server}:{port}";
+                    options.Configuration = cnstring;
+                });
+            }
+            var provider = coll.BuildServiceProvider();
+            var cache = provider.GetService<IDistributedCache>();
+        }
     }
 }
