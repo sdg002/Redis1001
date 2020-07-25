@@ -50,8 +50,12 @@ namespace UnitTestProject1
             Assert.AreEqual(expectedData, actualData);
         }
 
+        /// <summary>
+        /// This test demonstrates how to conditionnaly setup the DI to avoid having the need to install
+        /// Redis cache while doing local development
+        /// </summary>
         [TestMethod]
-        public void Condition_Injection_Of_IDistributedCache()
+        public void Conditional_Injection_Of_IDistributedCache()
         {
             var builder = new ConfigurationBuilder();
             builder.AddJsonFile("settings.json", optional: false);
@@ -74,6 +78,7 @@ namespace UnitTestProject1
             }
             var provider = coll.BuildServiceProvider();
             var cache = provider.GetService<IDistributedCache>();
+            Assert.IsNotNull(cache);
         }
     }
 }
