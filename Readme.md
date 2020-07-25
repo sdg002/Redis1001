@@ -2,7 +2,7 @@
 Demonstrates how to use Redis Cache from a .NET Core Azure function app
 
 # Accompanying article
-This code accompanies the aricle I wrote here [LINK TO BE ADDED]
+This code accompanies the aricle I wrote here https://medium.com/@saurabh.dasgupta1/about-7fb96fb1f80d
 
 # What does this SOLUTION contain?
 ## Azure function (HTTP trigger)
