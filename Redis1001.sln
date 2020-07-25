@@ -8,7 +8,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9138830A-F601-4437-89CC-54E7CCA8D658}"
 	ProjectSection(SolutionItems) = preProject
 		article.md = article.md
-		Readme.txt = Readme.txt
+		PostmanTest.png = PostmanTest.png
+		Readme.md = Readme.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Deployment", "Deployment\Deployment.csproj", "{42CC2776-34A2-415C-90CF-31F8707072ED}"
